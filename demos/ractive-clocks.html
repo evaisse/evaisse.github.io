@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang='en-GB'>
+
+<head>
+    <meta charset='utf-8'>
+    <title>Ractive test</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.1.30/spectre.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+</head>
+
+<body class="container grid-960">
+    <h1>Ractive dynamic attributes test</h1>
+    <!--
+       1. This is the element we'll render our Ractive to.
+  -->
+    <div id='container'></div>
+    <!--
+       2. You can load a template in many ways. For convenience, we'll include it in
+       a script tag so that we don't need to mess around with AJAX or multiline strings.
+       Note that we've set the type attribute to 'text/ractive' - though it can be
+       just about anything except 'text/javascript'
+  -->
+    <script id='template' type='text/ractive'>
+        
+        <p>Hello, {{ name }}!</p>
+
+        <svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="-110 -110 220 220" fade-in>
+            <!-- bounding circle -->
+            <circle style="stroke: black; fill: #eee;" cx="0" cy="0" r="100" />
+            <!-- hour, minute and second hands -->
+            <line x1={{ @this.hand('hours', 0, .55).x1 }} x2={{ @this.hand('hours', 0, .55).x2 }} 
+                  y1={{ @this.hand('hours', 0, .55).y1 }} y2={{ @this.hand('hours', 0, .55).y2 }} 
+                  style="stroke-width: 6px;stroke: green;" />
+            <line x1={{ @this.hand('minutes', 0, .85).x1 }} x2={{ @this.hand('minutes', 0, .85).x2 }} 
+                  y1={{ @this.hand('minutes', 0, .85).y1 }} y2={{ @this.hand('minutes', 0, .85).y2 }} 
+                  style="stroke-width: 4px;stroke: blue;" />
+            <line x1={{ @this.hand('seconds', 0, 1).x1 }} x2={{ @this.hand('seconds', 0, 1).x2 }} 
+                  y1={{ @this.hand('seconds', 0, 1).y1 }} y2={{ @this.hand('seconds', 0, 1).y2 }} 
+                  style="stroke-width: 2px;stroke: red;" />
+
+            <!-- tick marks -->
+            {{#each hours}}
+                {{!
+                }}
+            {{/each}}
+        </svg>
+    </script>
+    <!--
+       3. You can always get the most recent stable version from the URL below.
+       If you want the newest features (unstable!), use the 'edge' version instead:
+
+           http://cdn.ractivejs.org/edge/ractive.min.js
+
+       If you need IE8 support, change 'ractive' to 'ractive-legacy'.
+  -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.3/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.0/TweenMax.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ractive/0.9.0-build-39/ractive.min.js"></script>
+
+    <!--
+       4. We've got an element in the DOM, we've created a template, and we've
+       loaded the library - now it's time to build our Hello World app.
+  -->
+    <script>
+
+    var DEFAULTS = {
+        delay: 0,
+        duration: 300,
+        easing: 'linear'
+    };
+
+    Ractive.transitions.fade = function (t, params) {
+        var targetOpacity;
+
+        params = t.processParams(params, DEFAULTS);
+
+        if (t.isIntro) {
+            targetOpacity = t.getStyle('opacity');
+            t.setStyle('opacity', 0);
+        } else {
+            targetOpacity = 0;
+        }
+
+        t.animateStyle('opacity', targetOpacity, params).then(t.complete);
+    };
+
+    Ractive.transitions.tween = function (t, params) {
+        var targetOpacity;
+
+        params = t.processParams(params, DEFAULTS);
+
+        if (t.isIntro) {
+            targetOpacity = t.getStyle('opacity');
+            t.setStyle('opacity', 0);
+        } else {
+            targetOpacity = 0;
+        }
+
+        t.animateStyle('opacity', targetOpacity, params).then(t.complete);
+    };
+
+
+    var ractive = new Ractive({
+        // The `el` option can be a node, an ID, or a CSS selector.
+        el: '#container',
+
+        // We could pass in a string, but for the sake of convenience
+        // we're passing the ID of the <script> tag above.
+        template: '#template',
+
+        // Here, we're passing in some initial data
+        data: {
+            name: 'world',
+            time: new Date(),
+            hours: _.range(0, 12),
+        },
+
+        degrees: function() {
+            return 30 * this;
+        },
+
+
+        compute: function(degrees, startFraction, endFraction) {
+
+            var r = 100;
+            var radians = (degrees - 90) / 180 * Math.PI;
+
+            return {
+                x1: r * startFraction * Math.cos(radians),
+                y1: r * startFraction * Math.sin(radians),
+                x2: r * endFraction * Math.cos(radians),
+                y2: r * endFraction * Math.sin(radians),
+            };
+
+        },
+
+        hand: function(key, startFraction, endFraction) {
+
+            var time = this.get('time') || new Date();
+
+            var f = {
+                hours: time.getHours() * 30, 
+                minutes: time.getMinutes() * 6,
+                seconds: time.getSeconds() * 6
+            }
+
+            return this.compute(f[key], startFraction, endFraction);
+        },
+
+    });
+
+    setInterval(function() {
+        ractive.set('time', new Date());
+    }, 1000);
+    </script>
+</body>
+
+</html>
