@@ -1,0 +1,9 @@
+h1 {
+  text-align: center;
+  padding: 18%;
+}
+
+#reload-btn {
+  display: block;
+  margin:auto;
+}
