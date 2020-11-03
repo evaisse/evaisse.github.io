@@ -1,9 +1,13 @@
 h1 {
-  text-align: center;
-  padding: 18%;
+    text-align: center;
+    margin: auto;
+    width: 80%;
+    max-width: 35rem;
+    padding: 2rem;
+    line-height: 2.9rem;
 }
 
 #reload-btn {
-  display: block;
-  margin:auto;
+    display: block;
+    margin:auto;
 }
